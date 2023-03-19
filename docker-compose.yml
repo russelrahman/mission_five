@@ -1,0 +1,49 @@
+# Version should be higher but my computer is old
+version: "2.13"
+# a service is just refering to a container
+services:
+  # React app service
+  react_app:
+    container_name: react_container
+    # This build means to take the docker file from the frontend folder
+    build: ./frontend/
+    # refers to the standard input stream
+    stdin_open: true
+    ports:
+      - 3000:3000
+    volumes:
+      - ./frontend:/usr/src/app
+    networks:
+      - mission5
+  # MondoDB service
+  mongo_db:
+    container_name: db_container
+    image: mongo:latest
+    restart: always
+    ports:
+      - 27017:27017
+    networks:
+      - mission5
+    volumes:
+      - mongo_db:/data/db
+  # Node Js API service
+  api:
+    container_name: api_container
+    build: ./backend/
+    ports:
+      - 5000:5000
+    volumes:
+      - ./backend:/usr/src/app
+    networks:
+      - mission5
+    environment:
+      PORT: 5000
+      MONGODB_URL: "mongodb://localhost:27017/userDemoDB"
+    depends_on:
+      - mongo_db
+networks:
+  mission5:
+    driver: bridge
+
+volumes:
+  mongo_db: {}
